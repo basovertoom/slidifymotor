@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Motor Trend App</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Motor Trend App">
+  <meta name="author" content="Bas Overtoom">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Motor Trend App</h1>
+    <h2>checking your MPG</h2>
+    <p>Bas Overtoom<br/>MD</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Building my first Shiny App</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Based on the research done for Data Science Specialization - week 7
+I build my first shiny.</p>
+
+<ol>
+<li>Why this app</li>
+<li>How does it work</li>
+<li>Some plots</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Why this app</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Based on our reseach in the regression class, we found that Weight, Acceleration &amp; transmisison as the key values to influence the MPG of a car. With this App you can get an good indication of the MPG of your &#39;new&#39; to buy car.</li>
+<li>I build this online app so with the &#39;key&#39; indicators you can get an good estimation the MPG</li>
+<li>Next to that we shared some plots that profide more insight on the &#39;single&#39; relation between MPG and weight, and MPG and QSEC</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>How does it work - 1</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Outline of the key principe: I used the regression model the fit the MPG about on the key values in the Server.R - as you can see here:</p>
+
+<pre><code class="r">data(mtcars)
+automatics &lt;- mtcars[mtcars$am == 0,]
+manual &lt;- mtcars[mtcars$am == 1,]
+fit &lt;- lm(formula = mpg ~ wt + qsec + am, data = mtcars)
+predmpg&lt;-function(weight, qpsec, amto){
+  predict(fit, newdata = data.frame(wt = weight, qsec = qpsec, am = amto))
+}
+shinyServer(
+  function(input, output){
+    output$prediction &lt;- renderPrint({predmpg(input$weight, input$qpsec, input$amto)})
+    })
+</code></pre>
+
+<pre><code>## Error: could not find function &quot;shinyServer&quot;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>How does it work - 2</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>in the ui.R sidebarPanel you can add the value and get the prediction back</p>
+
+<pre><code class="r">  sidebarPanel(
+    numericInput(&#39;weight&#39;,&#39;Weight of the desired car in 1000 lbs:&#39;, 2, min=1, max=6, step=0.5),
+    numericInput(&#39;qpsec&#39;, &#39;Acceleration of the desired car in qsec:&#39;, 16, min=14, max=23, step=0.5),
+    numericInput(&#39;amto&#39;, &#39;Automatic 1= yes, 0 = no:&#39;, 0, min=0, max=1, step=1),
+    submitButton(&#39;Calculate MPG&#39;),
+    verbatimTextOutput(&quot;prediction&quot;)
+  )
+</code></pre>
+
+<pre><code>## Error: could not find function &quot;sidebarPanel&quot;
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Some plot</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>I shared some more exploratory analytics to look a little deeper into the relation MPG and the car weight and MPG and the acceleration time, to provide deeper understanding on the relation. </li>
+<li>For this I used a Radio button in the ui.R and the flowing plotting code</li>
+</ul>
+
+<pre><code class="r"> plot(mpg ~ qsec, data=mtcars, type=&#39;n&#39;, main = &#39;Figure 2: MPG vs 1/4 mile time&#39;)
+        points(mpg ~ qsec, data=automatics, col = &#39;red&#39;)
+        line3 &lt;- lm(mpg ~ qsec, data = automatics)
+        abline(line3, col = &#39;red&#39;)
+        points(mpg~ qsec, data=manual, col=&#39;blue&#39;)
+        line4 &lt;- lm(mpg ~ qsec, data = manual)
+        abline(line4, col =&#39;blue&#39;)
+</code></pre>
+
+<p><img src="assets/fig/unnamed-chunk-3.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Building my first Shiny App'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Why this app'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='How does it work - 1'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='How does it work - 2'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Some plot'>
+         5
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
